@@ -12,7 +12,13 @@ div {
 }
 
 .scoreboard {
-
+  background-color: #99FFCC;
+  border: 1px solid black;
+  height: 4em;
+  margin: .5em;
+  padding: 1em;
+  position: absolute;
+  width: 10em;
 }
 
 .highscore {
@@ -28,9 +34,16 @@ div {
 }
 
 .board {
-
+  background-color: #FF3333;
+  border: 1px solid black;
+  height: 30em;
+  width: 60em;
 }
 
 .mouse {
+
+}
+
+.circle {
 
 }
