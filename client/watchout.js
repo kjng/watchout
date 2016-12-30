@@ -6,15 +6,13 @@ let gameOptions = {
   enemyScrambleTime: 3000
 };
 
-// Player class
-class Player {
-  constructor(color, radius) {
-    this.color = color;
-    this.x = gameOptions.width / 2;
-    this.y = gameOptions.height / 2;
-    this.radius = radius;
-  }
-}
+// Player
+let player = {
+  color: 'red',
+  x: gameOptions.width / 2,
+  y: gameOptions.height / 2,
+  radius: 10
+};
 
 // Enemies
 class Enemy {
@@ -25,8 +23,7 @@ class Enemy {
   }
 }
 
-// Initialize Player
-let player = new Player('#0066ff', 10);
+// Initialize enemies
 let enemies = [];
 
 for (var i = 0; i < gameOptions.enemies; i++) {
@@ -42,21 +39,49 @@ let drag = d3.behavior.drag().on('drag', function(d) {
 });
 
 // Initialize gameboard
-let gameBoard = d3.select('.board').append('svg').attr('width', gameOptions.width).attr('height', gameOptions.height);
+let gameBoard = d3.select('.board')
+                  .append('svg')
+                  .attr('width', gameOptions.width)
+                  .attr('height', gameOptions.height);
 
 // Draw gameboard border
-let gameBoardBorder = gameBoard.append('rect').attr('height', gameOptions.height).attr('width', gameOptions.width).style('stroke', 'black').style('fill', 'none');
+let gameBoardBorder = gameBoard.append('rect')
+                                .attr('height', gameOptions.height)
+                                .attr('width', gameOptions.width).
+                                style('stroke', 'black')
+                                .style('fill', 'none');
 
 // Add player to board as a circle
-gameBoard.data([{x: player.x, y: player.y}]).append('circle').attr('class', 'player').attr('cx', player.x).attr('cy', player.y).attr('r', player.radius).attr('fill', player.color).attr('stroke', 'black').call(drag);
+gameBoard.data([{x: player.x, y: player.y}])
+          .append('circle')
+          .attr('class', 'player')
+          .attr('cx', player.x)
+          .attr('cy', player.y)
+          .attr('r', player.radius)
+          .attr('fill', player.color)
+          .attr('stroke', 'black')
+          .call(drag);
 
 // Add enemies
-gameBoard.selectAll('.enemy').data(enemies).enter().append('circle').attr('class', 'enemy').attr('cx', function(d) {return d.x;}).attr('cy', function(d) {return d.y;}).attr('r', function(d) {return d.radius;}).attr('fill', 'green').attr('stroke', 'black');
+gameBoard.selectAll('.enemy')
+          .data(enemies)
+          .enter()
+          .append('circle')
+          .attr('class', 'enemy')
+          .attr('cx', function(d) { return d.x; })
+          .attr('cy', function(d) { return d.y; })
+          .attr('r', function(d) { return d.radius; })
+          .attr('fill', 'green')
+          .attr('stroke', 'black');
 
 // Random position enemies
 let randomPos = function() {
   d3.selectAll('.enemy').each(function(d) {
-    d3.select(this).transition().duration(gameOptions.enemyScrambleTime).attr('cx', Math.floor(Math.random() * gameOptions.width)).attr('cy', Math.floor(Math.random() * gameOptions.height));
+    d3.select(this)
+      .transition()
+      .duration(gameOptions.enemyScrambleTime)
+      .attr('cx', Math.floor(Math.random() * gameOptions.width))
+      .attr('cy', Math.floor(Math.random() * gameOptions.height));
   });
 };
 
@@ -65,8 +90,21 @@ let collision = function(enemies) {
   d3.selectAll('.enemy').each(function(d) {
     if ((Math.abs(d3.select(this).attr('cx') - d3.select('.player').attr('cx')) < 15) && (Math.abs(d3.select(this).attr('cy') - d3.select('.player').attr('cy')) < 15)) {
       console.log('Collision!');
-      d3.select('rect').style('stroke', 'red');
+      flashCollision();
     }
   });
 };
 
+let flashCollision = function() {
+  let border = d3.select('rect');
+  if (border.style('fill') === 'none') {
+    border.style('fill', 'red');
+    setTimeout(function() {
+      border.style('fill', 'none');
+    }, 400);
+  }
+};
+
+randomPos();
+setInterval(randomPos, 3000);
+setInterval(collision, 25);
