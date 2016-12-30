@@ -2,8 +2,14 @@
 let gameOptions = {
   height: window.innerHeight - 20,
   width: window.innerWidth - 20,
-  enemies: 10,
+  enemies: 40,
   enemyScrambleTime: 3000
+};
+
+let scoreBoard = {
+  highScore: 0,
+  current: 0,
+  collisions: 0
 };
 
 // Player
@@ -43,6 +49,11 @@ let gameBoard = d3.select('.board')
                   .append('svg')
                   .attr('width', gameOptions.width)
                   .attr('height', gameOptions.height);
+
+// Create variables for counters
+let highscoreCounter = d3.select('.highscore').select('span');
+let currentCounter = d3.select('.current').select('span');
+let collisionCounter = d3.select('.collisions').select('span');
 
 // Draw gameboard border
 let gameBoardBorder = gameBoard.append('rect')
@@ -90,7 +101,17 @@ let collision = function(enemies) {
   d3.selectAll('.enemy').each(function(d) {
     if ((Math.abs(d3.select(this).attr('cx') - d3.select('.player').attr('cx')) < 15) && (Math.abs(d3.select(this).attr('cy') - d3.select('.player').attr('cy')) < 15)) {
       console.log('Collision!');
+      scoreBoard.collisions++;
+      d3.select('.collisions').select('span').text(scoreBoard.collisions.toString());
       flashCollision();
+      // Update highscore
+      if (scoreBoard.current > scoreBoard.highScore) {
+        scoreBoard.highScore = scoreBoard.current;
+        highscoreCounter.text(scoreBoard.highScore.toString());
+      }
+      // Reset current score
+      scoreBoard.current = 0;
+      currentCounter.text(scoreBoard.current.toString());
     }
   });
 };
@@ -105,6 +126,12 @@ let flashCollision = function() {
   }
 };
 
+let updateScoreBoard = function() {
+  scoreBoard.current++;
+  currentCounter.text(scoreBoard.current.toString());
+};
+
 randomPos();
-setInterval(randomPos, 3000);
-setInterval(collision, 25);
+setInterval(randomPos, gameOptions.enemyScrambleTime);
+setInterval(updateScoreBoard, 100);
+setInterval(collision, 50);
